@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>چند؟! | قیمت لحظه‌ای</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0f0f13;--card:#17171e;--card-hover:#1e1e28;--border:#2a2a38;
+    --text:#f0f0f5;--muted:#6b6b80;--up:#00e676;--down:#ff5252;--accent:#7c6bff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:
+    radial-gradient(ellipse 60% 40% at 20% 20%,rgba(124,107,255,.08) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%,rgba(0,230,118,.05) 0%,transparent 60%);
+    pointer-events:none;z-index:0}
+
+  .ticker-bar{background:rgba(124,107,255,.07);border-bottom:1px solid var(--border);padding:8px 0;overflow:hidden;white-space:nowrap}
+  .ticker-inner{display:inline-block;animation:ticker 35s linear infinite;font-size:12px;color:var(--muted)}
+  .ticker-item{display:inline-block;margin:0 24px}
+  .ticker-item .name{color:var(--text);font-weight:600}
+  .ticker-item .chg.up{color:var(--up)}.ticker-item .chg.down{color:var(--down)}
+  @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  .header{position:sticky;top:0;z-index:100;background:rgba(15,15,19,.9);backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--accent),#b388ff);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .logo span{background:linear-gradient(135deg,var(--up),#69f0ae);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .last-update{font-size:11px;color:var(--muted)}
+  .refresh-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:7px 14px;
+    border-radius:10px;cursor:pointer;font-family:'Vazirmatn',sans-serif;font-size:12px;
+    transition:all .2s;display:flex;align-items:center;gap:6px}
+  .refresh-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .refresh-btn.loading .icon{display:inline-block;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .container{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:20px 16px 48px}
+  .section-title{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:2px;
+    margin:28px 0 12px;display:flex;align-items:center;gap:8px}
+  .pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--up);animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+  @media(min-width:560px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:760px){.grid{grid-template-columns:repeat(4,1fr)}}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px 14px;
+    transition:all .25s cubic-bezier(.4,0,.2,1);animation:fadeUp .4s ease both}
+  .card:hover{background:var(--card-hover);transform:translateY(-3px);
+    box-shadow:0 12px 40px rgba(0,0,0,.4);border-color:rgba(124,107,255,.3)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+  .card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .card-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .card-name-fa{font-size:12px;font-weight:600}
+  .card-name-en{font-size:10px;color:var(--muted);margin-top:1px}
+  .card-change{font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:2px;
+    padding:3px 8px;border-radius:20px;margin-bottom:8px}
+  .card-change.up{color:var(--up);background:rgba(0,230,118,.1)}
+  .card-change.down{color:var(--down);background:rgba(255,82,82,.1)}
+  .card-change.neutral{color:var(--muted);background:rgba(107,107,128,.1)}
+  .card-price{font-size:20px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+  .card-price .unit{font-size:10px;font-weight:400;color:var(--muted);margin-right:3px}
+
+  .sk{background:linear-gradient(90deg,var(--border) 25%,rgba(255,255,255,.03) 50%,var(--border) 75%);
+    background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+  .err{background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.2);border-radius:12px;
+    padding:12px 16px;font-size:13px;color:var(--down);margin-bottom:16px;display:none;line-height:1.8}
+
+  footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);
+    border-top:1px solid var(--border);margin-top:16px}
+</style>
+</head>
+<body>
+
+<div class="ticker-bar"><div class="ticker-inner" id="ticker">⟳ در حال بارگذاری...</div></div>
+
+<header class="header">
+  <div class="logo">چند<span>؟!</span></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="last-update" id="lastUpdate">—</div>
+    <button class="refresh-btn" onclick="loadAll()">
+      <span class="icon">↻</span><span>بروزرسانی</span>
+    </button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="err" id="err"></div>
+
+  <div class="section-title"><span class="pulse-dot"></span> ارز</div>
+  <div class="grid" id="currencyGrid"></div>
+
+  <div class="section-title">طلا و سکه</div>
+  <div class="grid" id="goldGrid"></div>
+
+  <div class="section-title">ارز دیجیتال</div>
+  <div class="grid" id="cryptoGrid"></div>
+</div>
+
+<footer>قیمت‌ها از منابع معتبر — بروزرسانی خودکار هر ۲ دقیقه</footer>
+
+<script>
+const CURRENCY = [
+  {id:'usd',fa:'دلار آمریکا',en:'USD',icon:'🇺🇸',color:'#4fc3f7'},
+  {id:'eur',fa:'یورو',en:'EUR',icon:'🇪🇺',color:'#ab47bc'},
+  {id:'gbp',fa:'پوند انگلیس',en:'GBP',icon:'🇬🇧',color:'#ef5350'},
+  {id:'aed',fa:'درهم امارات',en:'AED',icon:'🇦🇪',color:'#26c6da'},
+  {id:'try',fa:'لیر ترکیه',en:'TRY',icon:'🇹🇷',color:'#ff7043'},
+  {id:'cad',fa:'دلار کانادا',en:'CAD',icon:'🇨🇦',color:'#ec407a'},
+  {id:'cny',fa:'یوان چین',en:'CNY',icon:'🇨🇳',color:'#ff5252'},
+  {id:'chf',fa:'فرانک سوئیس',en:'CHF',icon:'🇨🇭',color:'#66bb6a'},
+];
+const GOLD = [
+  {id:'geram18',fa:'طلای ۱۸ عیار',en:'GOLD18',icon:'🥇',color:'#f5c842'},
+  {id:'geram24',fa:'طلای ۲۴ عیار',en:'GOLD24',icon:'✨',color:'#ffd54f'},
+  {id:'mesghal',fa:'مثقال طلا',en:'MITHQAL',icon:'⚖️',color:'#ffca28'},
+  {id:'ons',fa:'اونس جهانی',en:'ONS',icon:'🌍',color:'#a5d6a7'},
+  {id:'emami',fa:'سکه امامی',en:'EMAMI',icon:'🪙',color:'#f5c842'},
+  {id:'azadi',fa:'سکه آزادی',en:'AZADI',icon:'🔵',color:'#42a5f5'},
+  {id:'nim',fa:'نیم سکه',en:'NIM',icon:'🟡',color:'#ffa726'},
+  {id:'rob',fa:'ربع سکه',en:'ROB',icon:'🟠',color:'#ff7043'},
+];
+const CRYPTO = [
+  {id:'bitcoin',fa:'بیتکوین',en:'BTC',icon:'₿',color:'#f7931a'},
+  {id:'ethereum',fa:'اتریوم',en:'ETH',icon:'⟠',color:'#627eea'},
+  {id:'tether',fa:'تتر',en:'USDT',icon:'₮',color:'#26a17b'},
+  {id:'binancecoin',fa:'بایننس کوین',en:'BNB',icon:'◈',color:'#f3ba2f'},
+  {id:'solana',fa:'سولانا',en:'SOL',icon:'◎',color:'#9945ff'},
+  {id:'ripple',fa:'ریپل',en:'XRP',icon:'✕',color:'#346aa9'},
+  {id:'cardano',fa:'کاردانو',en:'ADA',icon:'₳',color:'#0033ad'},
+  {id:'dogecoin',fa:'دوج‌کوین',en:'DOGE',icon:'Ð',color:'#c2a633'},
+];
+
+function fmtNum(n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return Math.round(n).toLocaleString('fa-IR');
+}
+
+function card(item, price, chg, unit='تومان', delay=0) {
+  const isUp=chg>0, isDown=chg<0;
+  const cc=isUp?'up':isDown?'down':'neutral';
+  const ci=isUp?'▲':isDown?'▼':'—';
+  const cv=chg!==null&&chg!==undefined ? Math.abs(chg).toLocaleString('fa-IR') : '—';
+  return `<div class="card" style="animation-delay:${delay}s">
+    <div class="card-header">
+      <div class="card-icon" style="background:${item.color}20">${item.icon}</div>
+      <div><div class="card-name-fa">${item.fa}</div><div class="card-name-en">${item.en}</div></div>
+    </div>
+    <div class="card-change ${cc}">${ci} ${cv}</div>
+    <div class="card-price">${price!==null?fmtNum(price):'—'}<span class="unit">${unit}</span></div>
+  </div>`;
+}
+
+function skeleton(n) {
+  return Array(n).fill(0).map(()=>`<div class="card">
+    <div class="card-header">
+      <div class="card-icon sk" style="width:34px;height:34px"></div>
+      <div style="flex:1"><div class="sk" style="height:13px;width:70%;margin-bottom:4px"></div><div class="sk" style="height:10px;width:40%"></div></div>
+    </div>
+    <div class="sk" style="height:20px;width:50%;margin-bottom:8px;border-radius:20px"></div>
+    <div class="sk" style="height:26px;width:80%"></div>
+  </div>`).join('');
+}
+
+async function fetchJson(url, timeout=9000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), timeout);
+  try {
+    const r = await fetch(url, {signal:ctrl.signal});
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+// ── دریافت قیمت‌های ایران ──────────────────────────────────────────────────
+// از سه منبع مختلف امتحان می‌کنیم
+async function fetchIran() {
+  const errors = [];
+
+  // منبع ۱: Navasan از طریق corsproxy.io
+  try {
+    const data = await fetchJson(
+      'https://corsproxy.io/?' + encodeURIComponent('https://sourceprice.navasan.ir/api/latest/?appkey=free')
+    );
+    if (data && (data.usd || data.USD)) return normalizeNavasan(data);
+  } catch(e) { errors.push('navasan/corsproxy: ' + e.message); }
+
+  // منبع ۲: Navasan از طریق allorigins
+  try {
+    const res = await fetchJson(
+      'https://api.allorigins.win/get?url=' + encodeURIComponent('https://sourceprice.navasan.ir/api/latest/?appkey=free')
+    );
+    if (res?.contents) {
+      const data = JSON.parse(res.contents);
+      if (data && data.usd) return normalizeNavasan(data);
+    }
+  } catch(e) { errors.push('navasan/allorigins: ' + e.message); }
+
+  // منبع ۳: سایت تبدیل از طریق allorigins
+  try {
+    const res = await fetchJson(
+      'https://api.allorigins.win/get?url=' + encodeURIComponent('https://call4.tgju.org/api/v1/currency/usd-irr?lang=fa')
+    );
+    if (res?.contents) {
+      const data = JSON.parse(res.contents);
+      return buildFallbackData(data);
+    }
+  } catch(e) { errors.push('tgju: ' + e.message); }
+
+  throw new Error('خطا در همه منابع:\n' + errors.join('\n'));
+}
+
+function normalizeNavasan(d) {
+  // navasan گاهی مقادیر را به ریال برمیگرداند، تقسیم بر ۱۰ میشه تومان
+  const toToman = v => v ? Math.round(parseFloat(v) / 10) : null;
+  const n = {};
+  // ارز
+  ['usd','eur','gbp','aed','try','cad','cny','chf','jpy'].forEach(k => {
+    n[k]          = d[k]           ? toToman(d[k])           : null;
+    n[k+'_change']= d[k+'_change'] ? toToman(d[k+'_change']) : null;
+  });
+  // طلا
+  ['geram18','geram24','mesghal','emami','azadi','nim','rob'].forEach(k => {
+    n[k]          = d[k]           ? toToman(d[k])           : null;
+    n[k+'_change']= d[k+'_change'] ? toToman(d[k+'_change']) : null;
+  });
+  n['ons'] = d['ons'] ? parseFloat(d['ons']) : null;
+  return n;
+}
+
+function buildFallbackData(tgju) {
+  // داده‌های محدود از TGJU
+  return { usd: tgju?.price ? Math.round(parseFloat(tgju.price)/10) : null };
+}
+
+// ── دریافت کریپتو (CoinGecko - CORS OK) ────────────────────────────────────
+async function fetchCrypto() {
+  const ids = CRYPTO.map(c=>c.id).join(',');
+  return fetchJson(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+}
+
+function buildTicker(nav, cg) {
+  const items = [
+    {name:'دلار',    val:nav.usd,          chg:nav.usd_change},
+    {name:'یورو',    val:nav.eur,          chg:nav.eur_change},
+    {name:'پوند',    val:nav.gbp,          chg:nav.gbp_change},
+    {name:'درهم',    val:nav.aed,          chg:nav.aed_change},
+    {name:'طلا ۱۸',  val:nav.geram18,      chg:nav.geram18_change},
+    {name:'امامی',   val:nav.emami,        chg:nav.emami_change},
+    {name:'بیتکوین', val:cg.bitcoin?.usd,  chg:cg.bitcoin?.usd_24h_change,  usd:true},
+    {name:'اتریوم',  val:cg.ethereum?.usd, chg:cg.ethereum?.usd_24h_change, usd:true},
+  ];
+  const html = items.filter(i=>i.val).map(i => {
+    const c = i.chg ? parseFloat(i.chg) : null;
+    const cc = c>0?'up':c<0?'down':'';
+    const ci = c>0?'▲':c<0?'▼':'';
+    return `<span class="ticker-item">
+      <span class="name">${i.name}</span>
+      ${fmtNum(parseFloat(i.val))} ${i.usd?'$':'ت'}
+      ${c!==null?`<span class="chg ${cc}">${ci}${Math.abs(c).toFixed(1)}%</span>`:''}
+    </span>`;
+  }).join('');
+  document.getElementById('ticker').innerHTML = html + html;
+}
+
+async function loadAll() {
+  const btn = document.querySelector('.refresh-btn');
+  btn.classList.add('loading');
+  const errEl = document.getElementById('err');
+  errEl.style.display = 'none';
+  ['currencyGrid','goldGrid','cryptoGrid'].forEach(g => {
+    document.getElementById(g).innerHTML = skeleton(8);
+  });
+
+  try {
+    const [nav, cg] = await Promise.all([fetchIran(), fetchCrypto()]);
+    const usdToman = nav.usd ? parseFloat(nav.usd) : null;
+
+    document.getElementById('currencyGrid').innerHTML =
+      CURRENCY.map((it,i) => card(it, nav[it.id]??null, nav[it.id+'_change']??null, 'تومان', i*0.04)).join('');
+
+    document.getElementById('goldGrid').innerHTML =
+      GOLD.map((it,i) => card(it, nav[it.id]??null, nav[it.id+'_change']??null, 'تومان', i*0.04)).join('');
+
+    document.getElementById('cryptoGrid').innerHTML =
+      CRYPTO.map((it,i) => {
+        const d = cg[it.id];
+        if (!d) return card(it, null, null, 'دلار', i*0.04);
+        const usdPrice  = d.usd;
+        const chgPct    = d.usd_24h_change ? parseFloat(d.usd_24h_change.toFixed(2)) : null;
+        const tomanPrice = usdToman ? Math.round(usdPrice * usdToman) : null;
+        return card(it, tomanPrice||usdPrice, chgPct, tomanPrice?'تومان':'دلار', i*0.04);
+      }).join('');
+
+    buildTicker(nav, cg);
+
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent =
+      'آخرین بروزرسانی: ' + now.toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
+
+  } catch(e) {
+    errEl.innerHTML = '⚠️ ' + e.message + '<br><small>VPN یا اینترنت خود را بررسی کنید</small>';
+    errEl.style.display = 'block';
+    ['currencyGrid','goldGrid','cryptoGrid'].forEach(g => {
+      document.getElementById(g).innerHTML =
+        '<div style="color:var(--down);font-size:13px;padding:12px;grid-column:1/-1">اطلاعات در دسترس نیست</div>';
+    });
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+setInterval(loadAll, 120000);
+loadAll();
+</script>
+</body>
+</html>
